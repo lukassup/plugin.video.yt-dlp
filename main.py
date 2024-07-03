@@ -22,7 +22,7 @@ import xbmcplugin
 # from xbmcaddon import Addon
 # from xbmcvfs import translatePath
 
-import yt_dlp
+from resources.lib import yt_dlp
 
 # Get the plugin url in plugin:// notation.
 URL = sys.argv[0]
@@ -39,27 +39,40 @@ def play_stream(url: str):
     :type url: str
     """
     if not (len(url) > 0):
-        xbmc.log("invalid url provided: %s" % url, level=xbmc.LOGERROR)
+        xbmc.log(f"Invalid URL provided: {url}", level=xbmc.LOGERROR)
         return  # TODO: exception
-    xbmc.log("fetching manifest_url for url: %s" % url, level=xbmc.LOGDEBUG)
+    xbmc.log(f"Fetching manifest_url for URL: {url}", level=xbmc.LOGDEBUG)
 
+    stream_info = None
     ydl_opts = {}
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         stream_info = ydl.extract_info(url, download=False)
-        if stream_info is None:
-            xbmc.log("stream_info is None", level=xbmc.LOGERROR)
+
+    if stream_info is None:
+        xbmc.log("Expected stream_info not to be None", level=xbmc.LOGERROR)
+        return  # TODO: exception
+
+    manifest_url = stream_info.get("manifest_url", None)
+    # .manifest_url can be None, try to find it in .formats[*].manifest_url
+    if manifest_url is None:
+        for stream_fmt in stream_info["formats"]:
+            manifest_url = stream_fmt.get("manifest_url", None)
+            if manifest_url is not None:
+                break
+        else:
+            xbmc.log(f"No manifest_url found for: {url}", level=xbmc.LOGERROR)
             return  # TODO: exception
-        manifest_url = stream_info["manifest_url"]
-        xbmc.log("fetched manifest_url: %s" % manifest_url, level=xbmc.LOGINFO)
-        # Create a playable item with a path to play.
-        # offscreen=True means that the list item is not meant for displaying,
-        # only to pass info to the Kodi player
-        xbmcplugin.setResolvedUrl(
-            HANDLE, True, listitem=xbmcgui.ListItem(offscreen=True, path=manifest_url)
-        )
+
+    xbmc.log(f"Fetched manifest_url: {manifest_url}", level=xbmc.LOGINFO)
+    # Create a playable item with a path to play.
+    # offscreen=True means that the list item is not meant for displaying,
+    # only to pass info to the Kodi player
+    xbmcplugin.setResolvedUrl(
+        HANDLE, True, listitem=xbmcgui.ListItem(offscreen=True, path=manifest_url)
+    )
 
 
 if __name__ == "__main__":
-    xbmc.log("plugin args: %s" % sys.argv, level=xbmc.LOGDEBUG)
+    xbmc.log(f"plugin args: {sys.argv}", level=xbmc.LOGDEBUG)
     plugin_param = sys.argv[2].lstrip("?")
     play_stream(plugin_param)
