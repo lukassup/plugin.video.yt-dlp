@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="plugin.video.yt-dlp"
+version="0.0.1"
+name="yt-dlp"
+provider-name="@lukassup">
+<requires>
+  <import addon="xbmc.python" version="3.0.1"/>
+</requires>
+<extension point="xbmc.python.pluginsource" library="main.py">
+  <provides>video</provides>
+</extension>
+<extension point="xbmc.addon.metadata">
+  <summary lang="en_GB">yt-dlp plugin for Kodi</summary>
+  <description lang="en_GB">Exctracts stream URLs from various websites and plays them.</description>
+  <license>GPL-3.0-only</license>
+  <assets>
+    <icon>resources/images/icon.png</icon>
+    <fanart>resources/images/fanart.jpg</fanart>
+  </assets>
+  <news>Initial release</news>
+</extension>
+</addon>
