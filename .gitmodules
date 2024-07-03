@@ -1,6 +1,3 @@
-[submodule "lib/streamlink"]
-	path = lib/streamlink
-	url = https://github.com/streamlink/streamlink.git
 [submodule "lib/yt-dlp"]
 	path = lib/yt-dlp
 	url = https://github.com/yt-dlp/yt-dlp.git
